@@ -14,87 +14,73 @@
  */
 (function($) {
 
-	var rXml = /^\s*</, oncomplete = function(){};
+	var rXml = /^\s*</;
 	
 	$.fn.xslt = function(xml, xsl, completeHandler) {
-		
-		var target = $(this);
-
-		oncomplete = completeHandler || oncomplete;
-
-		if(document.recalc){
-			ie(xml, xsl, target);
-		}
-		else{
-			mokit(xml, xsl, target);
-		}
+		(document.recalc ? ie : mokit).call(this, xml, xsl, $(this), completeHandler || oncomplete);
   
 		return this;
 	}
   
-  function ie(xml, xsl, target){
+  function ie(xml, xsl, target, callback){
 		var xm = document.createElement('xml'),
 			xs = document.createElement('xml'),
-			ready = function() {
-				var c = 'complete';
-				if (xm.readyState == c && xs.readyState == c) {
-					window.setTimeout(function() {
-						target.html(xm.transformNode(xs.XMLDocument));
-						oncomplete();
-					}, 50);
-				}
-			};
+			complete = 'complete';
 							
-		xm.onreadystatechange = ready;
+		xm.onreadystatechange = function(){
+			if(xm.readyState == complete){
+				xs[rXml.test(xsl) ? "innerHTML" : "src"] = xsl;		
+			}
+		};
+
+		xs.onreadystatechange = function(){
+			if(xs.readyState == complete){
+				window.setTimeout(function() {
+					target.html(xm.transformNode(xs.XMLDocument));
+					callback();
+				}, 50);
+			}
+		};	
+		
 		xm[rXml.test(xml) ? "innerHTML" : "src"] = xml;
-
-		xs.onreadystatechange = ready;
-		xs[rXml.test(xsl) ? "innerHTML" : "src"] = xsl;
-
 		target.append(xm).append(xs);
   }
   
-  function mokit(xml, xsl, target){
+  function load(data, callback){
+		var o;
+		
+		if (rXml.test(data)) {
+			o = new DOMParser().parseFromString(data, "text/xml");
+			callback(o);
+		}
+		else {
+			$.ajax({
+				dataType: "xml",
+				url: data,
+				success: function(response){
+					o = response;
+					callback(o);
+				}
+			});
+		}  
+  }
   
-		var processor = new XSLTProcessor(),
-			xm,
-			xs,
+  function mokit(xml, xsl, target, callback){
+  
+		var processor = new XSLTProcessor(), xm, xs,
 			transform = function() {
 				processor.importStylesheet(xs);
 				resultDoc = processor.transformToFragment(xm, document);
 				target.empty().append(resultDoc);
-				oncomplete();
-			},
-			loadXsl = function(){
-				if (rXml.test(xsl)) {
-					xs = new DOMParser().parseFromString(xsl, "text/xml");
-					transform();
-				}
-				else {
-					xs = $.ajax({ 
-						dataType: "xml",
-						url: xsl,
-						success: function(response){
-							xs = response;
-							transform();
-						}
-					});
-				}
+				callback();
 			};
 
-			if (rXml.test(xml)) {
-				xm = new DOMParser().parseFromString(xml, "text/xml");
-				loadXsl();
-			}
-			else {
-				$.ajax({
-					dataType: "xml",
-					url: xml,
-					success: function(response){
-						xm = response;
-						loadXsl();
-					}
-				});
-			}
+		load(xml, function(o){
+			xm = o;
+			load(xsl, function(o){
+				xs = o;
+				transform();
+			});
+		});
   }  
 })(jQuery);
