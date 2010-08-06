@@ -1,7 +1,16 @@
 /*!
- * jQuery client-side XSL Transformation plugin.
- * Based on jquery.xslt written by  Johann Burkard jb@eaio.com - http://eaio.com
- * Andrew Powell, appendTo. 08.02.2010.
+ * jQuery.xslt - jQuery client-side XSL Transformation plugin.
+ *
+ * Version: 1.0
+ * Released: 2010-08-06
+ * Source: http://github.com/appendto/jquery-xslt
+ * Author: Andrew Powell (http://shellscape.org)
+ * Based on jquery.xslt written by  Johann Burkard jb@eaio.com - http://johannburkard.de/software/xsltjs/
+ * License: MIT,GPL
+ * 
+ * Copyright (c) 2010 appendTo LLC.
+ * Dual licensed under the MIT or GPL licenses.
+ * http://appendto.com/open-source-licenses
  */
 (function($) {
 
