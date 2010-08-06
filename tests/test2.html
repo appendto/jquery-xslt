@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+	<title></title>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+	<script type="text/javascript" src="jquery.xslt.js"></script>
+	
+	<script type="text/javascript">
+		$(document).ready(function(){
+		
+			$('#test1').xslt(
+				"<conclusion><message>Success</message></conclusion>", 
+				"data/doc.xsl", 
+				function(){ console.log('complete'); }
+			);
+			
+			$('#test2').xslt(
+				"data/doc.xml", 
+				'<?xml version="1.0"?><xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"><xsl:output method="html" omit-xml-declaration="yes"/><xsl:template match="conclusion"> <p>Result: <xsl:value-of select="message/text()"/></p></xsl:template></xsl:stylesheet>', 
+				function(){ console.log('complete'); }
+			);
+			
+			$('#test3').xslt(
+				"<conclusion><message>Success.</message></conclusion>", 
+				'<?xml version="1.0"?><xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"><xsl:output method="html" omit-xml-declaration="yes"/><xsl:template match="conclusion"> <p>Result: <xsl:value-of select="message/text()"/></p></xsl:template></xsl:stylesheet>', 
+				function(){ console.log('complete'); }
+			);
+			
+		});
+	</script>
+	
+</head>
+<body>
+	<div id="test1"></div>
+	<div id="test2"></div>
+	<div id="test3"></div>
+</body>
+</html>
